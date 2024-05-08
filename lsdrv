@@ -15,6 +15,7 @@
 #	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #	GNU General Public License for more details.
 
+from __future__ import print_function
 import glob, os, re, signal, stat, sys
 from subprocess import Popen, PIPE
 
@@ -320,9 +321,9 @@ def probe_block(blocklink):
 	blockbynode[blk.dev] = blk
 	if not os.path.exists('/dev/block/'+blk.dev):
 		if not os.path.exists('/dev/block'):
-			os.mkdir('/dev/block', 0755)
-		print "Creating device for node %s ..." % blk.dev
-		os.mknod('/dev/block/'+blk.dev, stat.S_IFBLK | 0660, os.makedev(blk.major, blk.minor))
+			os.mkdir('/dev/block', 0o755)
+		print("Creating device for node %s ..." % blk.dev)
+		os.mknod('/dev/block/'+blk.dev, stat.S_IFBLK | 0o660, os.makedev(blk.major, blk.minor))
 	if os.path.exists(blkpath+'/device'):
 		blk.phy = probe_device(blkpath+'/device', blk.dev)
 		if blk.phy:
@@ -505,7 +506,7 @@ def show_vgroup(indent, vg, pv):
 		oPVs = " (w/ %s)" % ",".join(otherPVs)
 	else:
 		oPVs = ""
-	print "%s └VG %s %s%s %s free {%s}" % (indent, vg.name, vg.size, oPVs, vg.free, vg.uuid)
+	print("%s └VG %s %s%s %s free {%s}" % (indent, vg.name, vg.size, oPVs, vg.free, vg.uuid))
 	if vg.shown:
 		return
 	show_blocks(indent+"  ", vg.LVs)
@@ -528,11 +529,11 @@ def show_blocks(indent, blocks):
 			else:
 				line2 = corner[0]
 			namesizenode = "%s %s [%s]" % (blk.name, blk.sizestr, blk.dev)
-			print "%s%s%s %s" % (indent, branch[1], namesizenode, blk.preFS)
+			print("%s%s%s %s" % (indent, branch[1], namesizenode, blk.preFS))
 			line2spacer = line2+" "*max(0,len(namesizenode)-len(corner[0]))
-			print "%s%s%s %s" % (indent, branch[0], line2spacer, blk.FS)
+			print("%s%s%s %s" % (indent, branch[0], line2spacer, blk.FS))
 		else:
-			print "%s%s%s %s [%s] %s" % (indent, branch[1], blk.name, blk.sizestr, blk.dev, blk.FS)
+			print("%s%s%s %s [%s] %s" % (indent, branch[1], blk.name, blk.sizestr, blk.dev, blk.FS))
 		if blk.shown:
 			return
 		if blk.mounts:
@@ -541,7 +542,7 @@ def show_blocks(indent, blocks):
 					mbranch=corner
 				else:
 					mbranch=continuation
-				print "%s%s%sMounted as %s @ %s" % (indent, branch[0], mbranch[1], mounts[0], mounts[1])
+				print("%s%s%sMounted as %s @ %s" % (indent, branch[0], mbranch[1], mounts[0], mounts[1]))
 		elif blk.hasLVM:
 			show_vgroup(indent, vgroups[blk.vg_name], blk)
 		else:
@@ -577,7 +578,7 @@ tree=[(cntrlr.first, cntrlr) for cntrlr in controllers.values()]
 tree.sort(natcmp)
 
 for f, cntrlr in tree:
-	print " ".join(cntrlr.descriptors)
+	print(" ".join(cntrlr.descriptors))
 	if cntrlr.unitlist:
 		cntrlr.units[cntrlr.unitlist[-1]].last = True
 	branch = continuation
@@ -592,12 +593,12 @@ for f, cntrlr in tree:
 			unitdetail += ' '+phy.model
 		if phy.serial:
 			unitdetail += " {%s}" % phy.serial.strip()
-		print '%s%s' % (branch[1], unitdetail)
+		print('%s%s' % (branch[1], unitdetail))
 		if phy.block:
 			show_blocks("%s" % branch[0], [phy.block])
 
 unshown = [z.name for z in blockbynode.values() if z.size != '0.00k' and not z.shown]
 unshown.sort(natcmp)
 if unshown:
-	print "Other Block Devices"
+	print("Other Block Devices")
 	show_blocks("", [blockbyname[x] for x in unshown])
