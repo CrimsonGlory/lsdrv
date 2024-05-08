@@ -31,7 +31,7 @@ class Struct(object):
         if self in recurse:
             return type(self)
         args = []
-        for (k,v) in vars(self).items():
+        for (k,v) in list(vars(self).items()):
             if isinstance(v, Struct):
                 args.append('%s=%s' % (k, v.__repr__(recurse+[self])))
             else:
@@ -147,7 +147,7 @@ def try_int(s):
 natsortre = re.compile(r'(\d+|\D+)')
 def natsort_key(s):
     if isinstance(s, str):
-        return map(try_int, natsortre.findall(s))
+        return list(map(try_int, natsortre.findall(s)))
     else:
         try:
             return tuple([natsort_key(x) for x in s])
@@ -496,7 +496,7 @@ for x in runx(['lvs', '-o', 'vg_name,lv_name,segtype', '--noheadings', '--separa
 # Report unavailable utilities
 if RunxFails:
     sys.stderr.write("**Warning** The following utility(ies) failed to execute:\n"
-        "  %s\nSome information may be missing.\n\n" % "\n  ".join(RunxFails.values()))
+        "  %s\nSome information may be missing.\n\n" % "\n  ".join(list(RunxFails.values())))
 
 #-------------------
 # Given an indent level and a volume group object, recursively describe it.
@@ -560,21 +560,21 @@ scsidir = "/sys/bus/scsi/devices/"
 scsilist = os.listdir(scsidir)
 hosts = dict([(int(x[4:]), Struct(n=int(x[4:]), cpath=os.path.dirname(os.path.realpath(scsidir+x)), hpath='/'+x)) for x in scsilist if x[0:4]=='host'])
 
-for n, host in hosts.items():
+for n, host in list(hosts.items()):
     cntrlr = probe_controller(host.cpath)
     if cntrlr and not cntrlr.units:
         phy = Struct(name='scsi %d:x:x:x [Empty]' % host.n)
         cntrlr.units[None, phy.name] = phy
 
-for cntrlr in controllers.values():
-    cntrlr.unitlist = cntrlr.units.keys()
+for cntrlr in list(controllers.values()):
+    cntrlr.unitlist = list(cntrlr.units.keys())
     if cntrlr.unitlist:
         cntrlr.unitlist.sort(natcmp)
         cntrlr.first = cntrlr.unitlist[0]
     else:
         cntrlr.first = ''
 
-tree=[(cntrlr.first, cntrlr) for cntrlr in controllers.values()]
+tree=[(cntrlr.first, cntrlr) for cntrlr in list(controllers.values())]
 tree.sort(natcmp)
 
 for f, cntrlr in tree:
@@ -597,7 +597,7 @@ for f, cntrlr in tree:
         if phy.block:
             show_blocks("%s" % branch[0], [phy.block])
 
-unshown = [z.name for z in blockbynode.values() if z.size != '0.00k' and not z.shown]
+unshown = [z.name for z in list(blockbynode.values()) if z.size != '0.00k' and not z.shown]
 unshown.sort(natcmp)
 if unshown:
     print("Other Block Devices")
