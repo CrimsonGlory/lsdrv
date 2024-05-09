@@ -16,6 +16,11 @@
 #    GNU General Public License for more details.
 
 from __future__ import print_function
+from past.builtins import cmp
+from builtins import map
+from builtins import str
+from builtins import object
+import six
 import glob, os, re, signal, stat, sys
 from subprocess import Popen, PIPE
 
@@ -27,6 +32,8 @@ from subprocess import Popen, PIPE
 class Struct(object):
     def __init__(self, **entries):
         self.__dict__.update(entries)
+    def __bool__(self):
+        return True
     def __repr__(self, recurse=[]):
         if self in recurse:
             return type(self)
@@ -146,7 +153,7 @@ def try_int(s):
     except: return s
 natsortre = re.compile(r'(\d+|\D+)')
 def natsort_key(s):
-    if isinstance(s, str):
+    if isinstance(s, six.string_types):
         return list(map(try_int, natsortre.findall(s)))
     else:
         try:
@@ -593,7 +600,7 @@ for f, cntrlr in tree:
             unitdetail += ' '+phy.model
         if phy.serial:
             unitdetail += " {%s}" % phy.serial.strip()
-        print('%s%s' % (branch[1], unitdetail))
+        print('%s%s' % (branch[1].decode('utf-8'), unitdetail))
         if phy.block:
             show_blocks("%s" % branch[0], [phy.block])
 
