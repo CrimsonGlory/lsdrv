@@ -299,12 +299,12 @@ def probe_device(devpathlink, nodestr):
 # describe the filesystem or other usage.
 blockbyname=dict()
 blockbynode=dict()
-algorithms = ('left-asym', 'right-asym', 'left-sym', 'right-sym',	 # 0-3 convential raid5 & 6
-	'parity-first', 'parity-last', '?6', '?7',						# 4-7 convential raid5 & 6
+algorithms = ('left-asym', 'right-asym', 'left-sym', 'right-sym',     # 0-3 convential raid5 & 6
+	'parity-first', 'parity-last', '?6', '?7',                        # 4-7 convential raid5 & 6
 	'ddf-zero-restart', 'ddf-Nth-restart', 'ddf-Nth-continue', '?11', # 8-10 Intel DDF
 	'?12', '?13', '?14', '?15',
-	'left-asym-6', 'right-asym-6', 'left-sym-6', 'right-sym-6',	   # 16-19 Raid6 w/ Q last
-	'parity-first-6')												 # 20	Raid6 w/ Q last
+	'left-asym-6', 'right-asym-6', 'left-sym-6', 'right-sym-6',       # 16-19 Raid6 w/ Q last
+	'parity-first-6')                                                 # 20	Raid6 w/ Q last
 UseVolID = os.path.exists('/lib/udev/vol_id')
 def probe_block(blocklink):
 	name=blocklink.rsplit('/', 1)[-1]
