@@ -115,6 +115,7 @@ def runx(*args, **kwargs):
         timeout=5
     kwargs['stdout'] = PIPE
     kwargs['stderr'] = PIPE
+    kwargs['universal_newlines'] = True
     try:
         sub = Popen(*args, **kwargs)
     except OSError:
@@ -147,14 +148,12 @@ def try_int(s):
 natsortre = re.compile(r'(\d+|\D+)')
 def natsort_key(s):
     if isinstance(s, str):
-        return map(try_int, natsortre.findall(s))
+        return list(map(try_int, natsortre.findall(s)))
     else:
         try:
             return tuple([natsort_key(x) for x in s])
         except TypeError:
             return s
-def natcmp(a, b):
-    return cmp(natsort_key(a), natsort_key(b))
 
 #-------------------
 # Extract shell variable assignments from a multiline string buffer
@@ -547,7 +546,7 @@ def show_blocks(indent, blocks):
             show_vgroup(indent, vgroups[blk.vg_name], blk)
         else:
             subs = blk.partitions + blk.holders
-            subs.sort(natcmp)
+            subs = sorted(subs, key=natsort_key)
             if subs:
                 show_blocks("%s%s" % (indent, branch[0]), [blockbyname[x] for x in subs])
         blk.shown = True
@@ -569,13 +568,13 @@ for n, host in hosts.items():
 for cntrlr in controllers.values():
     cntrlr.unitlist = cntrlr.units.keys()
     if cntrlr.unitlist:
-        cntrlr.unitlist.sort(natcmp)
+        cntrlr.unitlist = sorted(cntrlr.unitlist, key=natsort_key)
         cntrlr.first = cntrlr.unitlist[0]
     else:
         cntrlr.first = ''
 
 tree=[(cntrlr.first, cntrlr) for cntrlr in controllers.values()]
-tree.sort(natcmp)
+tree = sorted(tree, key=natsort_key)
 
 for f, cntrlr in tree:
     print(" ".join(cntrlr.descriptors))
@@ -598,7 +597,7 @@ for f, cntrlr in tree:
             show_blocks("%s" % branch[0], [phy.block])
 
 unshown = [z.name for z in blockbynode.values() if z.size != '0.00k' and not z.shown]
-unshown.sort(natcmp)
+unshown = sorted(unshown, key=natsort_key)
 if unshown:
     print("Other Block Devices")
     show_blocks("", [blockbyname[x] for x in unshown])
