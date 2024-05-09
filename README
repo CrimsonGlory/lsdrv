@@ -29,3 +29,5 @@ are physical volumes in the LVM subsystem.
 
 Missing utilities are noted, but the script attempts to continue without
 them.
+
+If you get UnicodeEncodeError while executing with Python 3, you may have LC_ALL=C. Try executing 'export PYTHONIOENCODING=utf_8' or 'export LC_ALL=en_US.UTF-8'.
